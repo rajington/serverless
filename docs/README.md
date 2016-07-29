@@ -12,8 +12,8 @@ Follow these simple steps to install the alpha, create and deploy your first ser
 service afterwards.
 
 1. `npm install -g serverless@alpha`
-2. `serverless create --name first-service --provider aws`
-3. `cd first-service`
+2. `mkdir my-first-service && cd my-first-service`
+3. `serverless create --template aws-nodejs`
 4. `serverless deploy`
 5. `serverless invoke --function hello`
 6. `serverless remove`
@@ -32,8 +32,8 @@ You may also take a look at our [code of conduct](/code_of_conduct.md).
 
 - [Understanding Serverless and its configuration files](understanding-serverless)
   - [Serverless services and functions](understanding-serverless/services-and-functions.md)
-  - [serverless.yaml](understanding-serverless/serverless-yaml.md)
-  - [serverless.env.yaml](understanding-serverless/serverless-env-yaml.md)
+  - [serverless.yml](understanding-serverless/serverless-yml.md)
+  - [serverless.env.yml](understanding-serverless/serverless-env-yml.md)
 - [How to build your Serverless services](guide)
   - [Installing Serverless](guide/installation.md)
   - [Provider account setup](guide/provider-account-setup.md)
@@ -50,3 +50,6 @@ You may also take a look at our [code of conduct](/code_of_conduct.md).
 - [Building plugins](developing-plugins)
   - [How to build your own plugin](developing-plugins/building-plugins.md)
   - [How to build provider integration with your plugin](developing-plugins/building-provider-integrations.md)
+- [Service templates](service-templates)
+- [Usage tracking](usage-tracking)
+  - [Detailed information regarding usage tracking](usage-tracking/usage-tracking.md)

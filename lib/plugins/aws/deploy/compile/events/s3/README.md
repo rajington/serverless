@@ -1,12 +1,12 @@
 # Compile S3 Events
 
-This plugins compiles the function related S3 events in `serverless.yaml` to CloudFormation resources.
+This plugins compiles the function related S3 events in `serverless.yml` to CloudFormation resources.
 
 ## How it works
 
 `Compile S3 Events` hooks into the [`deploy:compileEvents`](/lib/plugins/deploy) lifecycle.
 
-It loops over all functions which are defined in `serverless.yaml`.
+It loops over all functions which are defined in `serverless.yml`.
 
 Inside the function loop it loops over all the defined `S3` events in the `events` section.
 
@@ -33,13 +33,13 @@ over all functions has finished.
 In this example we've defined a bucket with the name `profile-pictures` which will cause the function `user` to be run
 whenever something is uploaded or updated in the bucket.
 
-```yaml
-# serverless.yaml
+```yml
+# serverless.yml
 functions:
-    user:
-        handler: user.update
-        events:
-            - s3: profile-pictures
+  user:
+    handler: user.update
+    events:
+      - s3: profile-pictures
 ```
 
 ### Bucket setup with extended event options
@@ -48,13 +48,13 @@ Here we've used the extended event options which makes it possible to configure 
 Our bucket is called `confidential-information` and the `mail` function is run every time a user removes something from
 the bucket.
 
-```yaml
-# serverless.yaml
+```yml
+# serverless.yml
 functions:
-    mail:
-        handler: mail.removal
-        events:
-            - s3:
-                bucket: confidential-information
-                event: s3:ObjectRemoved:*
+  mail:
+    handler: mail.removal
+    events:
+      - s3:
+          bucket: confidential-information
+          event: s3:ObjectRemoved:*
 ```

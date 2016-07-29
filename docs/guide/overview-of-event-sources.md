@@ -15,26 +15,26 @@ The examples will show you how you can use the different event definitions.
 
 This will create a `photos` bucket which fires the `resize` function when an object is added or modified inside the bucket.
 
-```yaml
+```yml
 functions:
-    resize:
-        handler: resize
-        events:
-            - s3: photos
+  resize:
+    handler: resize
+    events:
+      - s3: photos
 ```
 
 #### Extended event definition
 
 This will create a bucket `photos`. The `users` function is called whenever an object is removed from the bucket.
 
-```yaml
+```yml
 functions:
-    users:
-        handler: users.handler
-        events:
-            - s3:
-                bucket: photos
-                event: s3:ObjectRemoved:*
+  users:
+    handler: users.handler
+    events:
+      - s3:
+          bucket: photos
+          event: s3:ObjectRemoved:*
 ```
 
 ### Schedule
@@ -43,12 +43,12 @@ functions:
 
 This will attach a schedule event and causes the function `crawl` to be called every 2 hours.
 
-```yaml
+```yml
 functions:
-    crawl:
-        handler: crawl
-        events:
-            - schedule: rate(2 hours)
+  crawl:
+    handler: crawl
+    events:
+      - schedule: rate(2 hours)
 ```
 
 #### Extended event definition
@@ -56,14 +56,14 @@ functions:
 This will create and attach a schedule event for the `aggregate` function which is disabled. If enabled it will call
 the `aggregate` function every 10 minutes.
 
-```yaml
+```yml
 functions:
-    aggregate:
-        handler: statistics.handler
-        events:
-            - schedule:
-                rate: rate(10 minutes)
-                enabled: false
+  aggregate:
+    handler: statistics.handler
+    events:
+      - schedule:
+          rate: rate(10 minutes)
+          enabled: false
 ```
 
 ### HTTP endpoint
@@ -73,12 +73,12 @@ functions:
 This will create a new HTTP endpoint which is accessible at `users/show` via a `GET` request. `show` will be called
 whenever the endpoint is accessed.
 
-```yaml
+```yml
 functions:
-    show:
-        handler: users.show
-        events:
-            - http: GET users/show
+  show:
+    handler: users.show
+    events:
+      - http: GET users/show
 ```
 
 #### Extended event definition
@@ -86,15 +86,29 @@ functions:
 This will create a new HTTP endpoint which is accessible at `posts/create` with the help of the HTTP `POST` method.
 The function `create` is called every time someone visits this endpoint.
 
-```yaml
+```yml
 functions:
-    create:
-        handler: posts.create
-        events:
-            - http:
-                path: posts/create
-                method: POST
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: POST
 ```
+
+**Note:** Serverless supports a built in, universal velocity request template which makes the following parameters available
+in the `event` object:
+
+- body
+- method
+- principalId
+- headers
+- query
+- path
+- identity
+- stageVariables
+
+To e.g. access the `body` parameter you can simply write `event.body`.
 
 ### SNS
 
@@ -103,12 +117,12 @@ functions:
 Here we create a new SNS topic with the name `dispatch` which is bound to the `dispatcher` function. The function will be
 called every time a message is sent to the `dispatch` topic.
 
-```yaml
+```yml
 functions:
-    dispatcher:
-        handler: dispatcher.dispatch
-        events:
-            - sns: dispatch
+  dispatcher:
+    handler: dispatcher.dispatch
+    events:
+      - sns: dispatch
 ```
 
 #### Extended event definition
@@ -117,14 +131,14 @@ This event definition ensures that the `aggregator` function get's called every 
 `aggregate` topic. `Data aggregation pipeline` will be shown in the AWS console so that the user can understand what the
 SNS topic is used for.
 
-```yaml
+```yml
 functions:
-    aggregator:
-        handler: aggregator.handler
-        events:
-            - sns:
-                topic_name: aggregate
-                display_name: Data aggregation pipeline
+  aggregator:
+    handler: aggregator.handler
+    events:
+      - sns:
+          topic_name: aggregate
+          display_name: Data aggregation pipeline
 ```
 
 ### Alexa Skills Kit

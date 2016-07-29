@@ -6,7 +6,7 @@ This plugins compiles the functions HTTP endpoint definitions to valid API Gatew
 
 `Compile Api Gateway Events` hooks into the [`deploy:compileEvents`](/lib/plugins/deploy) lifecycle.
 
-It loops over all functions which are defined in `serverless.yaml`. For each function that has a `http` event
+It loops over all functions which are defined in `serverless.yml`. For each function that has a `http` event
 defined, an API Gateway REST API will be created.
 
 Furthermore a lambda permission for the current function is created which makes is possible to invoke the function when
@@ -18,7 +18,7 @@ Those resources are then merged into the `serverless.service.resources.Resources
 
 ## Universal JSON request template
 
-The API Gateway plugin implements a request template which provides `{body, method, headers, query, path, identity,
+The API Gateway plugin implements a request template which provides `{body, method, principalId, headers, query, path, identity,
 stageVariables} = event` as JavaScript objects. This way you don't have to define the template on your own but can use
 this default template to access the necessary variables in your code.
 
@@ -29,26 +29,131 @@ this default template to access the necessary variables in your code.
 This setup specifies that the `index` function should be run when someone accesses the API gateway at `users/index` via
 a `GET` request.
 
-```yaml
-# serverless.yaml
+```yml
+# serverless.yml
 functions:
-    index:
-        handler: users.index
-        events:
-            - http: GET users/index
+  index:
+    handler: users.index
+    events:
+      - http: GET users/index
 ```
 
 ### Http setup with extended event options
 
 Here we've defined an POST endpoint for the path `posts/create`.
 
-```yaml
-# serverless.yaml
+```yml
+# serverless.yml
 functions:
-    create:
-        handler: posts.create
-        events:
-            - http:
-                path: posts/create
-                method: post
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: post
 ```
+
+### Http setup with custom authorizer
+You can enable custom authorizers for your HTTP endpoint by setting the authorizer in your http event to another function
+in the same service, as shown in the following example
+
+```yml
+# serverless.yml
+functions:
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: post
+          authorizer: authorizerFunc
+  authorizerFunc:
+    handler: handlers.authorizerFunc
+```
+Or, if you want to configure the authorizer with more options, you can turn the `authorizer` property into an object as
+shown in the following example:
+
+```yml
+# serverless.yml
+functions:
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: post
+          authorizer:
+            name: authorizerFunc
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Auth
+            identityValidationExpression: someRegex
+  authorizerFunc:
+    handler: handlers.authorizerFunc
+```
+
+### Http setup with custom authorizer (via ARN)
+If the authorizer function does not exist in your service but exists in AWS, you can provide the ARN of the Lambda
+function instead of the function name, as shown in the following example:
+
+```yml
+# serverless.yml
+functions:
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: post
+          authorizer: xxx:xxx:Lambda-Name
+```
+
+Or, if you want to configure the authorizer with more options, you can turn the `authorizer` property into an object as
+shown in the following example:
+
+```yml
+# serverless.yml
+functions:
+  create:
+    handler: posts.create
+    events:
+      - http:
+          path: posts/create
+          method: post
+          authorizer:
+            arn: xxx:xxx:Lambda-Name
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Auth
+            identityValidationExpression: someRegex
+```
+
+### Setting API keys for your Rest API
+You can specify a list of API keys to be used by your service Rest API by adding an `apiKeys` array property to the
+`provider` object in `serverless.yml`. You'll also need to explicitly specify which endpoints are `private` and require
+one of the api keys to be included in the request by adding a `private` boolean property to the `http` event object you
+want to set as private.
+
+Here's an example configuration for setting API keys for your service Rest API:
+
+```yml
+service: my-service
+provider:
+  name: aws
+  apiKeys:
+    - myFirstKey
+    - ${mySecondSecretKey} # you can hide it in a serverless variable
+functions:
+  hello:
+  events:
+    - http:
+        path: user/create
+        method: get
+        private: true
+```
+
+Clients connecting to this Rest API will then need to set any of these API keys in the `x-api-key` header of their request.
+That wouldn't be required if you hadn't set the `private` property to `true`.
+
+### Setting an HTTP proxy on API Gateway
+Setting an API Gateway proxy can easily be done by adding two custom CloudFormation resource templates to your
+`serverless.yml` file. Check [this guide](https://github.com/serverless/serverless/blob/v1.0/docs/guide/custom-provider-resources.md)
+for more info on how to set up a proxy using custom CloudFormation resources in `serverless.yml`.

@@ -46,6 +46,16 @@ describe('Utils', () => {
       expect(obj.foo).to.equal('bar');
     });
 
+    it('should write a .yml file synchronously', () => {
+      const tmpFilePath = path.join(os.tmpdir(), (new Date).getTime().toString(), 'anything.yml');
+
+      serverless.utils.writeFileSync(tmpFilePath, { foo: 'bar' });
+
+      return serverless.yamlParser.parse(tmpFilePath).then((obj) => {
+        expect(obj.foo).to.equal('bar');
+      });
+    });
+
     it('should write a .yaml file synchronously', () => {
       const tmpFilePath = path.join(os.tmpdir(), (new Date).getTime().toString(), 'anything.yaml');
 
@@ -122,6 +132,31 @@ describe('Utils', () => {
     });
   });
 
+  describe('#copyDirContentsSync()', () => {
+    it('recursively copy directory files', () => {
+      const tmpSrcDirPath = path.join(process.cwd(), 'testSrc');
+      const tmpDestDirPath = path.join(process.cwd(), 'testDest');
+
+      const srcFile1 = path.join(tmpSrcDirPath, 'file1.txt');
+      const srcFile2 = path.join(tmpSrcDirPath, 'folder', 'file2.txt');
+      const srcFile3 = path.join(tmpSrcDirPath, 'folder', 'folder', 'file3.txt');
+
+      const destFile1 = path.join(tmpDestDirPath, 'file1.txt');
+      const destFile2 = path.join(tmpDestDirPath, 'folder', 'file2.txt');
+      const destFile3 = path.join(tmpDestDirPath, 'folder', 'folder', 'file3.txt');
+
+      serverless.utils.writeFileSync(srcFile1, 'foo');
+      serverless.utils.writeFileSync(srcFile2, 'foo');
+      serverless.utils.writeFileSync(srcFile3, 'foo');
+
+      serverless.utils.copyDirContentsSync(tmpSrcDirPath, tmpDestDirPath);
+
+      expect(serverless.utils.fileExistsSync(destFile1)).to.equal(true);
+      expect(serverless.utils.fileExistsSync(destFile2)).to.equal(true);
+      expect(serverless.utils.fileExistsSync(destFile3)).to.equal(true);
+    });
+  });
+
   describe('#generateShortId()', () => {
     it('should generate a shortId', () => {
       const id = serverless.utils.generateShortId();
@@ -137,9 +172,21 @@ describe('Utils', () => {
   describe('#findServicePath()', () => {
     const testDir = process.cwd();
 
-    it('should detect if the CWD is a service directory', () => {
+    it('should detect if the CWD is a service directory when using Serverless .yaml files', () => {
       const tmpDirPath = path.join(os.tmpdir(), (new Date).getTime().toString());
       const tmpFilePath = path.join(tmpDirPath, 'serverless.yaml');
+
+      serverless.utils.writeFileSync(tmpFilePath, 'foo');
+      process.chdir(tmpDirPath);
+
+      const servicePath = serverless.utils.findServicePath();
+
+      expect(servicePath).to.not.equal(null);
+    });
+
+    it('should detect if the CWD is a service directory when using Serverless .yml files', () => {
+      const tmpDirPath = path.join(os.tmpdir(), (new Date).getTime().toString());
+      const tmpFilePath = path.join(tmpDirPath, 'serverless.yml');
 
       serverless.utils.writeFileSync(tmpFilePath, 'foo');
       process.chdir(tmpDirPath);

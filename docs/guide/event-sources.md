@@ -8,15 +8,15 @@ event will come in.
 
 ## Adding a HTTP event
 
-Go to the Serverless service directory and open up the [`serverless.yaml`](../understanding-serverless/serverless-yaml.md)
+Go to the Serverless service directory and open up the [`serverless.yml`](../understanding-serverless/serverless-yml.md)
 file in your favorite editor. At first we need to add an `events` property to the function to tell Serverless that this
 function will have events attached:
 
-```yaml
+```yml
 functions:
-    hello:
-        handler: handler.hello
-        events:
+  hello:
+    handler: handler.hello
+    events:
 ```
 
 This `events` property is used to store all the event definitions for the function.
@@ -24,14 +24,14 @@ Each event will be added inside this `events` section.
 
 Let's add a `http` event with a path of `greet` and a method of `get`:
 
-```yaml
+```yml
 functions:
-    hello:
-        handler: handler.hello
-        events:
-            - http:
-                path: greet
-                method: get
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: greet
+          method: get
 ```
 
 That's it. There's nothing more to do to setup a `http` event. Let's (re)deploy our service so that Serverless will
@@ -67,7 +67,7 @@ corresponding examples [here](overview-of-event-sources.md).
 
 Event sources are a great way to extend the functionality of your functions.
 They are pretty easy to setup. You simply need to add them to the corresponding function in your services
-[`serverless.yaml`](../understanding-serverless/serverless-yaml.md) file and (re)deploy the service.
+[`serverless.yml`](../understanding-serverless/serverless-yml.md) file and (re)deploy the service.
 
 But what if you want to add custom provider specific resources to your service which are not yet available as event
 sources or through plugins?
